@@ -34,6 +34,8 @@ public class Rot13 {
                 .mapToObj(intChar -> (char) intChar)
                 .map(character -> {
                     int[] characterData = isInSet(character);
+                    // ficar ifs dins d'una pipeline funcional és estrany.
+                    // he d'investigar el pattern matching de Java!
                     if (characterData[0] == 0) {
                         return LOWERCASE[(characterData[1] + 13) % LOWERCASE.length]; // per tal d'evitar consultar un
                                                                                       // índex que estigui fora de rang,
@@ -58,6 +60,8 @@ public class Rot13 {
                 .mapToObj(intChar -> (char) intChar)
                 .map(character -> {
                     int[] characterData = isInSet(character);
+                    // ficar ifs dins d'una pipeline funcional és estrany.
+                    // he d'investigar el pattern matching de Java!
                     if (characterData[0] == 0) {
                         return LOWERCASE[Math.floorMod(characterData[1] - 13, LOWERCASE.length)]; // floorMod per a
                                                                                                   // evitar sortir de
