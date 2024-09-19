@@ -10,7 +10,8 @@ public class Rot13 {
     private static int findIndex(char inputChar, char[] inputArray) {
         return IntStream.range(0, inputArray.length)
                 .filter(i -> inputChar == inputArray[i])
-                .findFirst()
+                .findFirst() // no sabem si hi ha caràcters repetits a l'array, i volem assegurar-nos que
+                             // agafem un sol índex
                 .orElse(-1); // mètode d'OptionalInt -> o és un int o és un null, i si és null fem això
     }
 
