@@ -1,5 +1,7 @@
-import java.security.*;
-import javax.crypto.*;
+import java.security.SecureRandom;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -17,7 +19,7 @@ public class AES {
         byte[] msgBytes = msg.getBytes();
 
         // Genera IVParameterSpec
-        SecureRandom secureRandom = new secureRandom();
+        SecureRandom secureRandom = new SecureRandom();
         secureRandom.nextBytes(iv);
         IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
 
@@ -26,8 +28,8 @@ public class AES {
 
         // Encripta
         Cipher cipher = Cipher.getInstance(FORMAT_AES);
-        cipher.init(Cipher.ENCRYPT_MODE, hash);
-        byte[] encryptedPart = cipher.doFinal(msgBytes, hash, ivParameterSpec);
+        cipher.init(Cipher.ENCRYPT_MODE, hash, ivParameterSpec);
+        byte[] encryptedPart = cipher.doFinal(msgBytes);
 
         // Combina IV amb part xifrada
         byte[] combination = new byte[encryptedPart.length + MIDA_IV];
@@ -40,14 +42,23 @@ public class AES {
 
     public static String desxifraAES(byte[] bMsgXifrat, String password) throws Exception {
         // Extreu IV
+        byte[] iv = new byte[MIDA_IV];
+        System.arraycopy(bMsgXifrat, 0, iv, 0, MIDA_IV);
 
         // Extreu la part xifrada
+        byte[] encryptedPart = new byte[bMsgXifrat.length - MIDA_IV];
+        System.arraycopy(bMsgXifrat, MIDA_IV, encryptedPart, MIDA_IV, encryptedPart.length);
 
         // Genera hash de la clau
+        SecretKey hash = new SecretKeySpec(password.getBytes(), ALGORISME_HASH);
 
         // Desencripta
+        Cipher cipher = Cipher.getInstance(FORMAT_AES);
+        cipher.init(Cipher.DECRYPT_MODE, hash, new IvParameterSpec(iv));
+        byte[] decryptedMsg = cipher.doFinal(bMsgXifrat);
 
         // Retorna String desxifrat
+        return new String(decryptedMsg);
     }
 
     public static void main(String[] args) {
