@@ -1,3 +1,4 @@
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -24,11 +25,13 @@ public class AES {
         IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
 
         // Genera hash
-        SecretKey hash = new SecretKeySpec(password.getBytes(), ALGORISME_HASH);
+        MessageDigest messageDigest = MessageDigest.getInstance(ALGORISME_HASH);
+        byte[] hash = messageDigest.digest(password.getBytes());
+        SecretKey hashKey = new SecretKeySpec(hash, ALGORISME_XIFRAT);
 
         // Encripta
         Cipher cipher = Cipher.getInstance(FORMAT_AES);
-        cipher.init(Cipher.ENCRYPT_MODE, hash, ivParameterSpec);
+        cipher.init(Cipher.ENCRYPT_MODE, hashKey, ivParameterSpec);
         byte[] encryptedPart = cipher.doFinal(msgBytes);
 
         // Combina IV amb part xifrada
@@ -47,15 +50,17 @@ public class AES {
 
         // Extreu la part xifrada
         byte[] encryptedPart = new byte[bMsgXifrat.length - MIDA_IV];
-        System.arraycopy(bMsgXifrat, MIDA_IV, encryptedPart, MIDA_IV, encryptedPart.length);
+        System.arraycopy(bMsgXifrat, MIDA_IV, encryptedPart, 0, encryptedPart.length);
 
         // Genera hash de la clau
-        SecretKey hash = new SecretKeySpec(password.getBytes(), ALGORISME_HASH);
+        MessageDigest messageDigest = MessageDigest.getInstance(ALGORISME_HASH);
+        byte[] hash = messageDigest.digest(password.getBytes());
+        SecretKey hashKey = new SecretKeySpec(hash, ALGORISME_XIFRAT);
 
         // Desencripta
         Cipher cipher = Cipher.getInstance(FORMAT_AES);
-        cipher.init(Cipher.DECRYPT_MODE, hash, new IvParameterSpec(iv));
-        byte[] decryptedMsg = cipher.doFinal(bMsgXifrat);
+        cipher.init(Cipher.DECRYPT_MODE, hashKey, new IvParameterSpec(iv));
+        byte[] decryptedMsg = cipher.doFinal(encryptedPart);
 
         // Retorna String desxifrat
         return new String(decryptedMsg);
